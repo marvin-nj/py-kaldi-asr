@@ -1,0 +1,20 @@
+一、基本依赖安装和解决(基于python3安装)
+1.sudo apt-get update
+
+2.sudo apt-get install pkg-config
+
+3.sudo apt install libatlas-dev & sudo apt install libatlas3-base
+
+二、py-kaldi-asr 安装
+1.git clone https://github.com/gooofy/py-kaldi-asr.git
+
+2.将kaldi-asr.pc(需要修改里面自己kaldi环境的绝对路径) 和atlas.pc 放入 /usr/lib/pkgconfig下，如没有pkgconfig文件夹新建一个
+
+3.make -j8（修改Makefile里的python为python3.6）
+
+4.编译的过程中可能会遇到/usr/bin/ld: cannot find -latlas解决方法：
+将/usr/lib/libatlas.so.3 软链接到/usr/lib/libatlas.so上
+ln -s libatlas.so.3 libatlas.so
+
+三、添加kaldi环境
+LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/wmh/kaldi/src/lib:/wmh/kaldi/tools/openfst/lib

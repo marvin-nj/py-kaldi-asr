@@ -1,0 +1,5 @@
+Name: atlas
+Version: 3.10.2
+Description: Debug information for package atlas
+Cflags: -I/usr/include/atlas/
+Libs: -L/usr/lib/ -latlas

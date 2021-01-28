@@ -30,7 +30,8 @@ import numpy as np
 
 from time import time
 
-from kaldiasr.nnet3 import KaldiNNet3OnlineModel, KaldiNNet3OnlineDecoder
+sys.path.append(r'/wmh/py-kaldi-asr/kaldiasr')
+from nnet3 import KaldiNNet3OnlineModel, KaldiNNet3OnlineDecoder
 
 # this is useful for benchmarking purposes
 NUM_DECODER_RUNS = 1

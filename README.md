@@ -6,7 +6,7 @@
 3.sudo apt install libatlas-dev & sudo apt install libatlas3-base
 
 二、py-kaldi-asr 安装
-1.git clone https://github.com/gooofy/py-kaldi-asr.git
+1.git clone https://github.com/marvin-nj/py-kaldi-asr.git
 
 2.将kaldi-asr.pc(需要修改里面自己kaldi环境的绝对路径) 和atlas.pc 放入 /usr/lib/pkgconfig下，如没有pkgconfig文件夹新建一个
 

@@ -24,7 +24,9 @@
 # Python 3 version
 #
 
-from kaldiasr.nnet3 import KaldiNNet3OnlineModel, KaldiNNet3OnlineDecoder
+import sys
+sys.path.append(r'/wmh/py-kaldi-asr/kaldiasr')
+from nnet3 import KaldiNNet3OnlineModel, KaldiNNet3OnlineDecoder
 
 MODELDIR    = 'data/models/kaldi-generic-en-tdnn_sp-latest'
 # MODELDIR    = 'data/models/kaldi-generic-de-tdnn_sp-latest'

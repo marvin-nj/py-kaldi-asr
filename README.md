@@ -31,5 +31,7 @@ export LD_PRELOAD=/opt/intel/mkl/lib/intel64/libmkl_def.so:/opt/intel/mkl/lib/in
 ```bash
 1、找不到kaldiasr时，在python的开始部分加入sys.path.append(r'/wmh/py-kaldi-asr/kaldiasr'), 主要是要把.so库的路径加载到python模块中
 2、在chain_live.py中， 默认只能16k实时解码，需要8k支持的话，修改vad.py、 kaldi.py和PulseRecorder.py中的采样率即可，路径参考 ：/home/wangmanhong/.local/lib/python3.6/site-packages/nltools
+3、pip3 install py-tools   -----> ImportError: cannot import name 'misc from nltools
+4、apt install pulseaudio  ----->  OSError: libpulse.so.0: cannot open shared object file: No such file or directory
 ```
 

@@ -1,23 +1,3 @@
-#!/usr/bin/env python
-# -*- coding: utf-8 -*- 
-
-#
-# Copyright 2017 Guenter Bartsch
-#
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-#
-#  http://www.apache.org/licenses/LICENSE-2.0
-#
-# THIS CODE IS PROVIDED *AS IS* BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-# KIND, EITHER EXPRESS OR IMPLIED, INCLUDING WITHOUT LIMITATION ANY IMPLIED
-# WARRANTIES OR CONDITIONS OF TITLE, FITNESS FOR A PARTICULAR PURPOSE,
-# MERCHANTABLITY OR NON-INFRINGEMENT.
-# See the Apache 2 License for the specific language governing permissions and
-# limitations under the License.
-#
-#
 # simple speech recognition http api server
 #
 # WARNING: 
@@ -60,20 +40,23 @@ import struct
 from time import time
 from optparse import OptionParser
 from setproctitle import setproctitle
-from BaseHTTPServer import BaseHTTPRequestHandler,HTTPServer
-
-from kaldiasr.nnet3 import KaldiNNet3OnlineModel, KaldiNNet3OnlineDecoder
+#from BaseHTTPServer import BaseHTTPRequestHandler,HTTPServer
+from http.server  import BaseHTTPRequestHandler,HTTPServer
+sys.path.append(r'/wmh/py-kaldi-asr/kaldiasr')
+from nnet3 import KaldiNNet3OnlineModel, KaldiNNet3OnlineDecoder
 import numpy as np
 
 DEFAULT_HOST      = 'localhost'
 DEFAULT_PORT      = 8301
 
-DEFAULT_MODEL_DIR = 'data/models/kaldi-nnet3-voxforge-de-latest'
-DEFAULT_MODEL     = 'nnet_tdnn_a'
+DEFAULT_MODEL_DIR                = 'data/models/kaldi-dianhua-cn-8k-2700h-tdnnf-baseline'
+#DEFAULT_MODEL_DIR                = 'data/models/kaldi-generic-cn-16k-1wh-tdnnf-fun9_v1'
+#DEFAULT_MODEL_DIR                = 'data/models/kaldi-generic-en-16k-1200h-tdnnf-r20190609'
+DEFAULT_MODEL     = 'model'
 
 DEFAULT_VF_LOGIN  = 'anonymous'
 DEFAULT_REC_DIR   = 'data/recordings'
-SAMPLE_RATE       = 16000
+SAMPLE_RATE       = 8000
 
 PROC_TITLE        = 'asr_server'
 
@@ -110,9 +93,9 @@ class SpeechHandler(BaseHTTPRequestHandler):
 
         if self.path=="/decode":
 
-            data = json.loads(self.rfile.read(int(self.headers.getheader('content-length'))))
+            data = json.loads(self.rfile.read(int(self.headers['content-length'])))
 
-            # print data
+            #print(data)
 
             audio       = data['audio']
             do_record   = data['do_record'] 
@@ -142,6 +125,7 @@ class SpeechHandler(BaseHTTPRequestHandler):
                         if not os.path.isfile(audiofn):
                             break
 
+
                     logging.debug('audiofn: %s' % audiofn)
 
                     # create wav file 
@@ -168,7 +152,8 @@ class SpeechHandler(BaseHTTPRequestHandler):
                 if do_finalize:
 
                     hstr, confidence = decoder.get_decoded_string()
-
+                    logging.info ( "** confidence:  %9.5f , result: %s" % (confidence, hstr))
+                    
                     logging.debug ( "*****************************************************************************")
                     logging.debug ( "**")
                     logging.debug ( "** %9.5f %s" % (confidence, hstr))
@@ -178,10 +163,10 @@ class SpeechHandler(BaseHTTPRequestHandler):
             self.send_response(200)
             self.send_header('Content-Type', 'application/json')
             self.end_headers()
-
+                
             reply = {'hstr': hstr, 'confidence': confidence, 'audiofn': audiofn}
 
-            self.wfile.write(json.dumps(reply))
+            self.wfile.write(json.dumps(reply).encode())
             return			
 			
 			
@@ -218,6 +203,7 @@ if __name__ == '__main__':
 
     (options, args) = parser.parse_args()
 
+   
     if options.verbose:
         logging.basicConfig(level=logging.DEBUG)
     else:
@@ -253,4 +239,3 @@ if __name__ == '__main__':
     except KeyboardInterrupt:
         logging.error('^C received, shutting down the web server')
         server.socket.close()
-

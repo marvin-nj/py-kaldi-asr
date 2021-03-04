@@ -42,11 +42,13 @@ namespace kaldi {
                                 int32        min_active,
                                 BaseFloat    lattice_beam,
                                 BaseFloat    acoustic_scale, 
-                                int32        frame_subsampling_factor, 
+                                int32        frame_subsampling_factor,
+                                bool         add_pitch, 
                                 std::string &word_syms_filename, 
                                 std::string &model_in_filename,
                                 std::string &fst_in_str,
                                 std::string &mfcc_config,
+                                std::string &online_pitch_config,
                                 std::string &ie_conf_filename,
                                 std::string &align_lex_filename
                                ) ;

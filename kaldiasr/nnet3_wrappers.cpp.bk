@@ -28,6 +28,7 @@
 #include "lat/word-align-lattice-lexicon.h"
 #include "nnet3/nnet-utils.h"
 
+#define VERBOSE 0
 
 namespace kaldi {
 
@@ -45,14 +46,21 @@ namespace kaldi {
         tot_frames         = 0;
         tot_frames_decoded = 0;
 
+#if VERBOSE
+        KALDI_LOG << "alloc: OnlineIvectorExtractorAdaptationState";
+#endif
         adaptation_state  = new OnlineIvectorExtractorAdaptationState (model->feature_info->ivector_extractor_info);
 
+#if VERBOSE
         KALDI_LOG << "alloc: OnlineSilenceWeighting";
+#endif
         silence_weighting = new OnlineSilenceWeighting (model->trans_model, 
                                                         model->feature_info->silence_weighting_config,
                                                         model->decodable_opts.frame_subsampling_factor);
         
+#if VERBOSE
         KALDI_LOG << "alloc: nnet3::DecodableNnetSimpleLoopedInfo";
+#endif
         decodable_info = new nnet3::DecodableNnetSimpleLoopedInfo(model->decodable_opts, &model->am_nnet);
     }
 
@@ -73,27 +81,37 @@ namespace kaldi {
     }
 
     void NNet3OnlineDecoderWrapper::start_decoding(void) {
+#if VERBOSE
         KALDI_LOG << "start_decoding..." ;
         KALDI_LOG << "max_active  :" << model->lattice_faster_decoder_config.max_active;
         KALDI_LOG << "min_active  :" << model->lattice_faster_decoder_config.min_active;
         KALDI_LOG << "beam        :" << model->lattice_faster_decoder_config.beam;
         KALDI_LOG << "lattice_beam:" << model->lattice_faster_decoder_config.lattice_beam;
+#endif
         free_decoder();
+#if VERBOSE
         KALDI_LOG << "alloc: OnlineNnet2FeaturePipeline";
+#endif
         feature_pipeline  = new OnlineNnet2FeaturePipeline (*model->feature_info);
         feature_pipeline->SetAdaptationState(*adaptation_state);
+#if VERBOSE
         KALDI_LOG << "alloc: SingleUtteranceNnet3Decoder";
+#endif
         decoder           = new SingleUtteranceNnet3Decoder (model->lattice_faster_decoder_config,
                                                              model->trans_model,
                                                              *decodable_info,
                                                              *model->decode_fst,
                                                              feature_pipeline);
+#if VERBOSE
         KALDI_LOG << "start_decoding...done" ;
+#endif
     }
 
     void NNet3OnlineDecoderWrapper::free_decoder(void) {
         if (decoder) {
+#if VERBOSE
             KALDI_LOG << "free_decoder";
+#endif
             delete decoder ;
             decoder = NULL;
         }
@@ -149,7 +167,9 @@ namespace kaldi {
 
         WordAlignLatticeLexiconInfo lexicon_info(model->word_alignment_lexicon);
 
+#if VERBOSE
         KALDI_LOG << "word alignment starts...";
+#endif
         CompactLattice aligned_clat;
         WordAlignLatticeLexiconOpts opts;
 
@@ -163,7 +183,9 @@ namespace kaldi {
                 KALDI_WARN << "Lattice was empty";
                 return false;
             } else {
+#if VERBOSE
                 KALDI_LOG << "Aligned lattice.";
+#endif
                 TopSortCompactLatticeIfNeeded(&aligned_clat);
 
                 // lattice-1best
@@ -209,7 +231,9 @@ namespace kaldi {
         }
         tot_frames += num_frames;
 
+#if VERBOSE
         KALDI_LOG << "AcceptWaveform...";
+#endif
         feature_pipeline->AcceptWaveform(samp_freq, wave_part);
 
         if (finalize) {
@@ -289,6 +313,7 @@ namespace kaldi {
         typedef kaldi::int32 int32;
         typedef kaldi::int64 int64;
     
+#if VERBOSE
         KALDI_LOG << "model_in_filename:         " << model_in_filename;
         KALDI_LOG << "fst_in_str:                " << fst_in_str;
         KALDI_LOG << "mfcc_config:               " << mfcc_config;
@@ -296,8 +321,10 @@ namespace kaldi {
         KALDI_LOG << "add_pitch:                 " << add_pitch;
         KALDI_LOG << "ie_conf_filename:          " << ie_conf_filename;
         KALDI_LOG << "align_lex_filename:        " << align_lex_filename;
+#else
         // silence kaldi output as well
         SetLogHandler(silent_log_handler);
+#endif
 
         feature_config.mfcc_config                 = mfcc_config;
         feature_config.online_pitch_config         = online_pitch_config;
@@ -333,7 +360,9 @@ namespace kaldi {
             KALDI_ERR << "Could not read symbol table from file "
                        << word_syms_filename;
 
+#if VERBOSE
         KALDI_LOG << "loading word alignment lexicon...";
+#endif
         {
             bool binary_in;
             Input ki(align_lex_filename, &binary_in);

@@ -15,7 +15,8 @@
 2.将kaldi-asr.pc(需要修改里面自己kaldi环境的绝对路径) 和atlas.pc 放入 /usr/lib/pkgconfig下，如没有pkgconfig文件夹新建一个
 3.make -j8（修改Makefile里的python为python3）
 4.编译的过程中可能会遇到/usr/bin/ld: cannot find -latlas解决方法：
-    将/usr/lib/libatlas.so.3 软链接到/usr/lib/libatlas.so上
+    先用find查找libatlas.so的位置，
+    然后将查找结果连接到（如libatlas.so.3） 软链接到/usr/lib/libatlas.so上
     ln -s libatlas.so.3 libatlas.so
 ```
 

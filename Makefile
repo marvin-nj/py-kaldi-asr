@@ -9,7 +9,7 @@ LDFLAGS = -rdynamic -lm -lpthread -ldl `pkg-config --libs kaldi-asr`
 all: kaldiasr/nnet3.so
 
 kaldiasr/nnet3.so:	kaldiasr/nnet3.pyx kaldiasr/nnet3_wrappers.cpp kaldiasr/nnet3_wrappers.h
-	python setup.py build_ext --inplace
+	python3 setup.py build_ext --inplace
 
 dist:
 	python setup.py sdist

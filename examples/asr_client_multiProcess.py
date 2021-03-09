@@ -1,9 +1,9 @@
+#by marvin 2021.03.09
 #!/usr/bin/env python
 # -*- coding: utf-8 -*- 
 
 # very basic example client for our example speech asr server
 #
-
 
 import os
 import sys

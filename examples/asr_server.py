@@ -46,8 +46,12 @@ sys.path.append(r'/wmh/py-kaldi-asr/kaldiasr')
 from nnet3 import KaldiNNet3OnlineModel, KaldiNNet3OnlineDecoder
 import numpy as np
 
+#multi process
+import multiprocessing
+
 DEFAULT_HOST      = 'localhost'
-DEFAULT_PORT      = 8301
+DEFAULT_PORT      = 8001
+NUM_WOKER=5
 
 DEFAULT_MODEL_DIR                = 'data/models/kaldi-dianhua-cn-8k-2700h-tdnnf-baseline'
 #DEFAULT_MODEL_DIR                = 'data/models/kaldi-generic-cn-16k-1wh-tdnnf-fun9_v1'
@@ -60,25 +64,13 @@ SAMPLE_RATE       = 8000
 
 PROC_TITLE        = 'asr_server'
 
-#
-# globals
-#
-# FIXME: get rid of these, implement proper session management
-#
 
 audiofn = ''   # path to current wav file being written
-wf      = None # current wav file being written
-decoder = None # kaldi nnet3 online decoder
+wf      = None # current wav file being writtenfo = http_server.accept()
 
-def mkdirs(path):
-    try:
-        os.makedirs(path)
-    except OSError as exception:
-        if exception.errno != errno.EEXIST:
-            raise
 
 class SpeechHandler(BaseHTTPRequestHandler):
-	
+
     def do_GET(self):
         self.send_error(400, 'Invalid request')
 
@@ -88,6 +80,7 @@ class SpeechHandler(BaseHTTPRequestHandler):
     def do_POST(self):
 
         global wf, decoder, vf_login, recordings_dir, audiofn
+        print('server process  id:', os.getpid())
 
         logging.debug("POST %s" % self.path)
 
@@ -169,7 +162,9 @@ class SpeechHandler(BaseHTTPRequestHandler):
             self.wfile.write(json.dumps(reply).encode())
             return			
 			
-			
+#ForkingMixIn, ThreadingMixIn
+		
+
 if __name__ == '__main__':
 
     setproctitle (PROC_TITLE)
@@ -230,12 +225,21 @@ if __name__ == '__main__':
     #
 
     try:
-        server = HTTPServer((options.host, options.port), SpeechHandler)
-        logging.info('listening for HTTP requests on %s:%d' % (options.host, options.port))
-        
-        # wait forever for incoming http requests
-        server.serve_forever()
+        print('main process  id:', os.getpid())
+        i=0
+        while i < NUM_WOKER :
+            port=int(options.port)+i
+            print(port)
+            server = HTTPServer((options.host, port), SpeechHandler) 
+            p=multiprocessing.Process(target=server.serve_forever)
 
+            logging.info('listening for HTTP requests on %s:%d' % (options.host, options.port))
+            #server.serve_forever()
+            p.start()
+            i=i+1
+        print("total "+str(NUM_WOKER)+" ports start, form port id "+str(DEFAULT_PORT))
+     
     except KeyboardInterrupt:
         logging.error('^C received, shutting down the web server')
         server.socket.close()
+
